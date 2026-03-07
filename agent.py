@@ -3,17 +3,20 @@ import argparse
 import code
 import logging
 import os
+from unittest import result
 
 # Import specific methoods and classes from external libraries
 from dotenv import load_dotenv
 from openai import OpenAI
 from runner import run_python_file
+from search_tool import search_web
 from task import load_task
 
 # Set up logging configuration to provide informative messages about the execution of the script. This includes timestamps, log levels, and the message content, which can help with debugging and understanding the flow of the program.
+# full format: "%(asctime)s | %(levelname)s | %(message)s"
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
+    format="%(message)s",
      handlers=[
         logging.FileHandler("agent.log"),
         logging.StreamHandler()
@@ -57,11 +60,14 @@ def generate_code(task, previous_error=None):
     #set the prompt for the language model, including the task and any previous error if applicable. This allows the model to generate code that addresses the task while also correcting any mistakes from previous attempts.
     #the prompt goes for the next few lines.
     prompt = f"""
-Write Python code to complete this task:
+You are an AI coding assistant.
 
+You can:
+1. Write Python code
+2. Search the web for documentation if needed
+
+Task:
 {task}
-
-If there was an error previously, fix it.
 
 Previous error:
 {previous_error}
@@ -95,13 +101,13 @@ def main():
 
         logger.info(f"Attempt {attempt+1}")
 
-        logger.info("Generating code from LLM")
+        logger.info("Generating code from LLM...")
 
         code = generate_code(TASK, error)
 
         save_code(code)
 
-        logger.info("Executing generated Python script")
+        logger.info("Executing generated Python script...")
 
         result = run_python_file("generated_script.py")
 
@@ -111,8 +117,14 @@ def main():
         if "Traceback" not in result:
             logger.info("Task completed successfully.")
             break
+        else:
+            logger.warning("Execution failed. Searching documentation...")
 
-        error = result
+            #search the web for relevant documentation based on the error message. This allows the agent to gather information that may help it correct the code in the next attempt, improving its chances of successfully completing the task.
+            search_results = search_web(result)
+
+            error = result + "\n\nRelevant documentation:\n" + search_results
+
 
 #call the argument parsing function to get the command-line arguments when the script is executed. This allows the user to specify the task file and the number of attempts when running the script, providing flexibility in how the agent operates.
 args = parse_arguments()
