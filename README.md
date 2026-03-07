@@ -4,7 +4,8 @@ A simple autonomous Python agent that:
 - Reads a coding task
 - Generates Python code using OpenAI
 - Executes the code
-- Fixes errors automatically
+- Any errors are researched on the Web
+- Errors are corrected and tasks are reattempted automatically
 
 ## Example
 task.txt reads, "Write Python code that generates a random password with 16-characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. "
