@@ -93,49 +93,50 @@ def save_code(code):
     with open("generated_script.py", "w") as f:
         f.write(code)
 
-# The main function orchestrates the process of generating code, saving it, and executing it. It allows for up to 5 attempts to generate and execute code successfully. If an error occurs during execution, the error message is captured and passed back to the code generation step to help the model correct its output in subsequent attempts.
-def main():
+# Execute the generated code and implement retry logic. If the code execution results in an error, the error message is captured and used to generate new code in the next attempt. The process continues until the code executes successfully or the maximum number of attempts is reached, at which point a RuntimeError is raised.
+def execute_task(task, attempts):
+     
     error = None
 
-    for attempt in range(args.attempts):
+    for attempt in range(attempts):
 
         logger.info(f"Attempt {attempt+1}")
 
-        logger.info("Generating code from LLM...")
-
-        code = generate_code(TASK, error)
+        code = generate_code(task, error)
 
         save_code(code)
 
-        logger.info("Executing generated Python script...")
-
         result = run_python_file("generated_script.py")
 
-        logger.info("Execution Result:")
+        if "Traceback" not in result:
+            return result
+
+        search_results = search_web(result)
+
+        error = result + "\n\nRelevant documentation:\n" + search_results
+
+    raise RuntimeError("Task failed after maximum attempts")
+
+
+def main():
+    #call the argument parsing function to get the command-line arguments when the script is executed. This allows the user to specify the task file and the number of attempts when running the script, providing flexibility in how the agent operates.
+    args = parse_arguments()
+
+    try:
+        result = execute_task(TASK, args.attempts)
         logger.info(result)
 
-        if "Traceback" not in result:
-            logger.info("Task completed successfully.")
-            break
-        else:
-            logger.warning("Execution failed. Searching documentation...")
-
-            #search the web for relevant documentation based on the error message. This allows the agent to gather information that may help it correct the code in the next attempt, improving its chances of successfully completing the task.
-            search_results = search_web(result)
-
-            error = result + "\n\nRelevant documentation:\n" + search_results
+    except RuntimeError:
+        logger.error("Task could not be completed.")
 
 
-#call the argument parsing function to get the command-line arguments when the script is executed. This allows the user to specify the task file and the number of attempts when running the script, providing flexibility in how the agent operates.
-args = parse_arguments()
+    # Load the task from the task file (presently, task.txt) Throw an error if the file is missing or empty. This ensures we have a valid task before proceeding.
+    try:
+        TASK = load_task(args.taskfile)
+    except Exception as e:
+        logger.error(f"Error loading task: {e}")
+        exit(1)
 
-# Load the task from the task file (presently, task.txt) Throw an error if the file is missing or empty. This ensures we have a valid task before proceeding.
-try:
-    TASK = load_task(args.taskfile)
-except Exception as e:
-    print(f"Error loading task: {e}")
-    exit(1)
-
-# If all attempts fail, print a final message indicating that the task could not be completed successfully after multiple attempts. This provides feedback to the user and indicates that further intervention may be needed to address the task.
-if __name__ == "__main__":
-    main()
+    # If all attempts fail, print a final message indicating that the task could not be completed successfully after multiple attempts. This provides feedback to the user and indicates that further intervention may be needed to address the task.
+    if __name__ == "__main__":
+        main()
