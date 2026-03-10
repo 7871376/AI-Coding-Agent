@@ -1,5 +1,6 @@
 import requests
 
+# Simple web search tool using DuckDuckGo's API
 def search_web(query):
 
     url = "https://duckduckgo.com/?q=" + query.replace(" ", "+") + "&format=json"

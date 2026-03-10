@@ -3,7 +3,8 @@ import os
 
 def load_task(taskfile):
 
-    # For simplicity, we read the task from a local file. In an enterprise implementation, this could be an API call or database query.
+    # For simplicity, we read the task from a local file. 
+    # In an enterprise implementation, this could be an API call or database query.
     
     if not os.path.exists(taskfile):
         raise FileNotFoundError("Task file was not found.")
