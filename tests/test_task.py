@@ -5,7 +5,7 @@ import pytest
 # Add the parent directory to the system path to allow importing from the agent module
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from task import load_task
+from agent.task import load_task
 
 
 def test_load_task_success(tmp_path):

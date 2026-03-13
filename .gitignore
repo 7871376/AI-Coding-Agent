@@ -3,3 +3,4 @@ __pycache__/
 generated_script.py
 *.pyc
 *.log
+ai_coding_agent.egg-info/

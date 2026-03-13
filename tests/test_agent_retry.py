@@ -5,8 +5,8 @@ import pytest
 # Add the parent directory to the system path to allow importing from the agent module
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from runner import run_python_file
-from agent import execute_task
+from agent.runner import run_python_file
+from agent.runtime import execute_task
 
 def test_execute_task_success(monkeypatch):
 

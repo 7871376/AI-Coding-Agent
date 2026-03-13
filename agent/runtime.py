@@ -10,9 +10,9 @@ from unittest import result
 # Import specific methoods and classes from external libraries
 from dotenv import load_dotenv
 from openai import OpenAI
-from runner import run_python_file
-from search_tool import search_web
-from task import load_task
+from agent.runner import run_python_file
+from agent.search_tool import search_web
+from agent.task import load_task
 
 # Set up logging configuration to provide informative messages about the execution of the script.
 # This includes timestamps, log levels, and the message content, which can help with debugging 

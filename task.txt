@@ -1,1 +1,1 @@
-Write Python code that generates a random password with 16-characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. 
+Write Python code that generates a random password with 16 characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. 

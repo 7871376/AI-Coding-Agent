@@ -1,0 +1,17 @@
+[project]
+name = "ai-coding-agent"
+version = "0.1.0"
+description = "AI coding agent that generates and executes Python tasks"
+authors = [{name = "Tony Farrell"}]
+dependencies = [
+    "openai",
+    "python-dotenv",
+    "requests"
+]
+
+[project.scripts]
+ai-agent = "agent.cli:main_cli" 
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
