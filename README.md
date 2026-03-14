@@ -7,8 +7,22 @@ A simple autonomous Python agent that:
 - Any errors are researched on the Web
 - Errors are corrected and tasks are reattempted automatically
 
+With:
+- Python agent runtime
+- LLM prompt → code generation loop
+- Retry logic
+- Subprocess execution sandbox
+- Logging system
+- Installable Python package
+- CLI tool
+- Standalone EXE distribution
+- Runtime environment detection
+- Interpreter fallback logic
+- File system-safe execution
+- End-to-end working demo
+
 ## Example
-task.txt reads, "Write Python code that generates a random password with 16-characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. "
+task.txt reads, "Write Python code that generates a random password with 16 characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. "
 
 Returns:
 Attempt 1
