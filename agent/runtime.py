@@ -35,8 +35,7 @@ logger = logging.getLogger(__name__)
 
 if DEBUG_MODE:
     logger.debug(f"DEBUG: AGENT STARTED")
-
-print("CWD:", os.getcwd())
+    logger.debug(f"DEBUG: CWD: {os.getcwd()}")
 
 # initialize the OpenAI client and load environment variables from a .env file. 
 # This allows us to securely manage API keys and other configuration settings needed 
@@ -165,11 +164,14 @@ def execute_task(task, output_path,attempts):
      
     error = None
 
-    print("Writing script to:", output_path)
+    if DEBUG_MODE:
+        logger.debug(f"DEBUG: Writing generated code to {output_path}")
 
     for attempt in range(attempts):
 
-        logger.info(f"INFO: Attempt {attempt+1}")
+        if attempt >0:
+            logger.info(f"INFO: Attempt {attempt+1} of {attempts}")
+
         code = generate_code(task, error)
         save_code(code, output_path)
         result = run_python_file(output_path)
@@ -185,6 +187,9 @@ def execute_task(task, output_path,attempts):
 
 def main():
     
+    # Define the output path for the generated code file. This is where the generated code will be saved
+    # based on the specified task. The file will be named "generated_script.py" and located in the current
+    # working directory. This allows for easy access and execution of the generated code.
     output_path = os.path.join(os.getcwd(), "generated_script.py")
 
     # call the argument parsing function to get the command-line arguments when the script is executed. 
