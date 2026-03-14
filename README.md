@@ -21,6 +21,18 @@ With:
 - File system-safe execution
 - End-to-end working demo
 
+## 🚀 Download Standalone Executable
+
+Run the AI Coding Agent without installing Python.
+
+👉 Download: https://github.com/7871376/AI-Coding-Agent/releases/latest
+
+### Quick Start (PowerShell)
+
+```powershell
+$env:OPENAI_API_KEY="your_api_key"
+.\ai-agent.exe task.txt
+
 ## Example
 task.txt reads, "Write Python code that generates a random password with 16 characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. "
 
