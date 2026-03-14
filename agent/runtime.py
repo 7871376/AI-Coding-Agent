@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 if DEBUG_MODE:
     logger.debug(f"DEBUG: AGENT STARTED")
 
+print("CWD:", os.getcwd())
+
 # initialize the OpenAI client and load environment variables from a .env file. 
 # This allows us to securely manage API keys and other configuration settings needed 
 # for the OpenAI API to function properly. 
@@ -150,24 +152,27 @@ def extract_code(text: str) -> str:
 
 # Save the generated code to a file named "generated_script.py". This allows us to execute the code 
 # in subsequent steps and also keeps a record of the generated code for debugging or review purposes.
-def save_code(code):
-    with open("generated_script.py", "w") as f:
+def save_code(code, output_path):
+
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(code)
 
 # Execute the generated code and implement retry logic. If the code execution results in an error, 
 # the error message is captured and used to generate new code in the next attempt. The process 
 # continues until the code executes successfully or the maximum number of attempts is reached, at 
 # which point a RuntimeError is raised.
-def execute_task(task, attempts):
+def execute_task(task, output_path,attempts):
      
     error = None
+
+    print("Writing script to:", output_path)
 
     for attempt in range(attempts):
 
         logger.info(f"INFO: Attempt {attempt+1}")
         code = generate_code(task, error)
-        save_code(code)
-        result = run_python_file("generated_script.py")
+        save_code(code, output_path)
+        result = run_python_file(output_path)
 
         if "Traceback" not in result:
             return result
@@ -180,6 +185,8 @@ def execute_task(task, attempts):
 
 def main():
     
+    output_path = os.path.join(os.getcwd(), "generated_script.py")
+
     # call the argument parsing function to get the command-line arguments when the script is executed. 
     # This allows the user to specify the task file and the number of attempts when running the script,
     # providing flexibility in how the agent operates.
@@ -197,7 +204,7 @@ def main():
     # the result is logged. If all attempts fail, an error message is logged indicating that the task
     # could not be completed.
     try:
-        result = execute_task(TASK, args.attempts)
+        result = execute_task(TASK, output_path, args.attempts)
         logger.info(result)
 
     except RuntimeError:

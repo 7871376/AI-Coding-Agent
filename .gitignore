@@ -4,3 +4,6 @@ generated_script.py
 *.pyc
 *.log
 ai_coding_agent.egg-info/
+build/
+dist/
+*.spec
