@@ -161,7 +161,10 @@ def save_code(code, output_path):
 # continues until the code executes successfully or the maximum number of attempts is reached, at 
 # which point a RuntimeError is raised.
 def execute_task(task, output_path,attempts):
-     
+
+    output_prompt_start = f"\nAI Coding Agent\n---------------\nExecuting generated code for task: {task} \n\nResult: "
+    output_promt_end = "\n\nTask completed successfully."
+
     error = None
 
     if DEBUG_MODE:
@@ -174,7 +177,7 @@ def execute_task(task, output_path,attempts):
 
         code = generate_code(task, error)
         save_code(code, output_path)
-        result = run_python_file(output_path)
+        result = output_prompt_start + run_python_file(output_path) + output_promt_end
 
         if "Traceback" not in result:
             return result
