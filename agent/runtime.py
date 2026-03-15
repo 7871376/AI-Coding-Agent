@@ -5,11 +5,14 @@ import argparse
 import code
 import logging
 import os
+import sys
 from unittest import result
 
 # Import specific methoods and classes from external libraries
 from dotenv import load_dotenv
+from openai import AuthenticationError
 from openai import OpenAI
+from openai.types.chat import ChatCompletion
 from agent.runner import run_python_file
 from agent.search_tool import search_web
 from agent.task import load_task
@@ -43,7 +46,33 @@ if DEBUG_MODE:
 # 
 # The client will be used to interact with the OpenAI API for generating code based on the specified task.
 load_dotenv()
-client = OpenAI()
+
+# The check_key function is responsible for ensuring that the OpenAI API key is available.
+# It first checks if the key is set in the environment variables. If not, it prompts the user 
+# to enter it manually.
+def check_key():
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        print()
+        api_key = input("Enter your OpenAI API key: ").strip()
+        print("(Your key will not be stored.)")
+        print()
+
+        if not api_key:
+            logger.error("ERROR: OPENAI_API_KEY not found.")
+            sys.exit(1)
+
+    return api_key
+
+
+# Get key FIRST
+api_key = check_key()
+
+# THEN create client. Note the api key is passed to the client constructor,
+# which allows the client to authenticate with the OpenAI API regardless of
+# whether the key was obtained from the environment variable or entered by the user.
+client = OpenAI(api_key=api_key)
 
 # Function to parse command-line arguments. This allows users to specify the task file 
 # and the number of attempts when running the script. The default number of attempts 
@@ -110,12 +139,8 @@ Do not include comments outside code.
      # Call the OpenAI API to generate code based on the prompt. 
      # The model used is "gpt-4o-mini", which is a smaller version of GPT-4 optimized for code generation. 
      # The response is expected to contain the generated Python code.
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
+    response = get_response(client, prompt)
     
-
     # debug only
     if DEBUG_MODE:
         logger.debug(f"DEBUG: API Response: {response}")
@@ -129,6 +154,31 @@ Do not include comments outside code.
     code = code.replace("```python", "").replace("```", "").strip()
 
     return code
+
+def get_response(client, prompt: str) -> str:
+    # This function is designed to interact with the OpenAI API to generate a response based on a given prompt. 
+    # It sends the prompt to the API and retrieves the generated content, which is expected to be in the form of a string. 
+    # The function also includes error handling for authentication issues and other unexpected errors, 
+    # ensuring that the user is informed of any problems that arise during the API call.
+    try:
+        response: ChatCompletion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response #.choices[0].message.content
+
+    except AuthenticationError:
+        logger.error("ERROR: Invalid OpenAI API key.")
+        print("\nERROR: Invalid OpenAI API key.\n\n")
+        print("Please verify your key and try again.\n")
+        input("Press Enter to exit.")
+        sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"ERROR: Unexpected error occurred: {e}")
+        print(f"\nUnexpected error: {e}\n\n")
+        input("Press Enter to exit.")
+        sys.exit(1)
 
 def extract_code(text: str) -> str:
     # The function is designed to extract Python code from a given text input. 
@@ -147,7 +197,6 @@ def extract_code(text: str) -> str:
                 return p.split("\n", 1)[1]
         return parts[1]
     return text
-
 
 # Save the generated code to a file named "generated_script.py". This allows us to execute the code 
 # in subsequent steps and also keeps a record of the generated code for debugging or review purposes.
@@ -185,7 +234,7 @@ def execute_task(task, output_path,attempts):
         search_results = search_web(result)
         error = result + "\n\nRelevant documentation:\n" + search_results
 
-    raise RuntimeError("Task failed after maximum attempts")
+    raise RuntimeError("Task failed after maximum attempts.")
 
 
 def main():
@@ -217,7 +266,6 @@ def main():
 
     except RuntimeError:
         logger.error("ERROR: Task could not be completed.")
-
 
 # If all attempts fail, print a final message indicating that the task could not be completed 
 # successfully after multiple attempts. This provides feedback to the user and indicates that 
