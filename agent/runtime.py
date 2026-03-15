@@ -108,7 +108,7 @@ def generate_code(task, previous_error=None):
     # This allows the model to generate code that addresses the task while also correcting 
     # any mistakes from previous attempts.
     # 
-    # called from execute_task, which manages the overall process of generating and executing code, 
+    # called from execute_task(), which manages the overall process of generating and executing code, 
     # including handling errors and retries.
 
     # the prompt goes for the next few lines.
@@ -208,7 +208,7 @@ def save_code(code, output_path):
 # Execute the generated code and implement retry logic. If the code execution results in an error, 
 # the error message is captured and used to generate new code in the next attempt. The process 
 # continues until the code executes successfully or the maximum number of attempts is reached, at 
-# which point a RuntimeError is raised.
+# which point a RuntimeError is raised. Called from main().
 def execute_task(task, output_path,attempts):
 
     output_prompt_start = f"\nAI Coding Agent\n---------------\nExecuting generated code for task: {task} \n\nResult: "
@@ -263,6 +263,7 @@ def main():
     try:
         result = execute_task(TASK, output_path, args.attempts)
         logger.info(result)
+        input("\nPress Enter to exit.\n")
 
     except RuntimeError:
         logger.error("ERROR: Task could not be completed.")
