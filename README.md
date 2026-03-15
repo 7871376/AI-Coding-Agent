@@ -21,31 +21,15 @@ With:
 - File system-safe execution
 - End-to-end working demo
 
+## Prerequisites 
+- An OpenAI API key. You may edit the enclosed .env file or be prompted for it at runtime.
+- A task for the AI agent to perform in task.txt. A sample task is included.
+
 ## 🚀 Download Standalone Executable
 
 Run the AI Coding Agent without installing Python.
 
 👉 Download: https://github.com/7871376/AI-Coding-Agent/releases/latest
 
-### Quick Start (PowerShell)
-
-```powershell
-$env:OPENAI_API_KEY="your_api_key"
-.\ai-agent.exe task.txt
-
-## Example
-task.txt reads, "Write Python code that generates a random password with 16 characters. Avoid inclusion of the capital letters I and O, and lowercase l, because they can be confused with digits 0 and 1. "
-
-Returns:
-Attempt 1... Execution Result: 6nn99cQX,j]tSFda
-
-Task completed successfully.
-
-## Requires
-A .env file that contains your OpenAI API Key. Use format OPENAI_API_KEY={your key here}
-
 ## Run
-
-python agent.py task.txt --attempts n
-
-Where task.txt contains the prompt you want run, and n is the number of times you want the prompt re-attempted.
+```ai-coding-agent.exe```
